@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Pulse - Paper Trading Simulator</title>
+    <meta name="description"
+        content="A premium stock market simulator for paper trading with real-time simulated data and portfolio tracking">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="face-api.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <path d="M4 28L8 12L14 20L20 8L28 16" stroke="url(#gradient)" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <defs>
+                            <linearGradient id="gradient" x1="4" y1="8" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#667eea" />
+                                <stop offset="1" stop-color="#764ba2" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>Market Pulse</h1>
+            </div>
+            <div class="goal-message">Get to $1,000,000 to Win! 🏆</div>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Portfolio Value</span>
+                    <span class="stat-value" id="portfolio-value">$100,000.00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Cash Balance</span>
+                    <span class="stat-value" id="cash-balance">$100,000.00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total P&L</span>
+                    <span class="stat-value" id="total-pl">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Market Overview Section -->
+        <section class="market-overview">
+            <div class="market-header">
+                <h2 class="section-title">Market Overview</h2>
+                <div class="search-container">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <input type="text" id="stock-search" class="search-input"
+                        placeholder="Search stocks by symbol or name...">
+                </div>
+            </div>
+
+            <!-- Time Control Panel -->
+            <div class="time-control-panel">
+                <div class="time-info">
+                    <span class="time-label">Current Date:</span>
+                    <span class="time-value" id="current-date">Nov 24, 2015</span>
+                </div>
+                <div class="time-controls">
+                    <button class="time-btn stop-market-btn" id="toggle-market-btn"
+                        style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3);">Halt
+                        trading</button>
+                </div>
+                <div class="time-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="time-progress-fill"></div>
+                    </div>
+                    <span class="progress-text" id="time-progress-text">0 / 10 years</span>
+                </div>
+            </div>
+
+            <div class="stocks-grid" id="stocks-grid">
+                <!-- Stock cards will be generated here -->
+            </div>
+
+            <!-- Market Events Log -->
+            <div class="events-section">
+                <div class="section-header">
+                    <h3 class="section-title">Market Events Log</h3>
+                    <button class="btn-clear" id="clear-events-btn">Clear</button>
+                </div>
+                <div class="events-container">
+                    <div class="events-log" id="events-log">
+                        <div class="empty-state">No market events yet...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trading Panel -->
+        <aside class="trading-panel">
+            <div class="panel-header">
+                <h3>😊 Emotion Trading</h3>
+                <p class="emotion-subtitle">Smile to buy, frown to sell</p>
+            </div>
+
+            <!-- Camera Feed -->
+            <div class="camera-container">
+                <video id="video" autoplay muted playsinline></video>
+                <canvas id="overlay-canvas"></canvas>
+                <div class="camera-status" id="camera-status">
+                    <div class="status-icon">📷</div>
+                    <div class="status-text">Click button below to start camera</div>
+                    <button class="start-camera-btn" id="start-camera-btn"
+                        onclick="if(window.emotionTrading){window.emotionTrading.init().then(()=>console.log('Init complete')).catch(e=>console.error('Init error:',e))}else{alert('Emotion trading not loaded! Check console.');console.error('window.emotionTrading is undefined')}">
+                        Start Emotion Trading
+                    </button>
+                </div>
+            </div>
+
+            <!-- Emotion Status -->
+            <div class="emotion-status">
+                <div class="emotion-indicator" id="emotion-indicator">
+                    <div class="emotion-icon" id="emotion-icon">😐</div>
+                    <div class="emotion-text" id="emotion-text">Neutral</div>
+                </div>
+                <div class="emotion-confidence">
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidence-fill"></div>
+                    </div>
+                    <span class="confidence-label" id="confidence-label">0%</span>
+                </div>
+            </div>
+
+            <!-- Selected Stock for Trading -->
+            <div class="trading-stock-section">
+                <h4>Selected Stock</h4>
+                <div class="selected-stock-display" id="selected-stock-display">
+                    <p class="placeholder-text">Click a stock to select it for emotion trading</p>
+                </div>
+            </div>
+
+            <!-- Trading Settings -->
+            <div class="trading-settings">
+                <div class="setting-row">
+                    <label for="shares-per-trade">Shares per emotion:</label>
+                    <input type="number" id="shares-per-trade" min="1" max="100" value="1">
+                </div>
+                <div class="setting-row">
+                    <label>
+                        <input type="checkbox" id="trading-enabled" checked>
+                        <span>Enable emotion trading</span>
+                    </label>
+                </div>
+            </div>
+
+
+            <!-- Portfolio Holdings -->
+            <div class="portfolio-section">
+                <h3>Your Holdings</h3>
+                <div class="holdings-list" id="holdings-list">
+                    <p class="placeholder-text">No holdings yet</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Stock Detail Modal -->
+    <div class="modal" id="stock-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="modal-header">
+                <h2 id="modal-stock-symbol">AAPL</h2>
+                <p id="modal-stock-name">Apple Inc.</p>
+            </div>
+            <div class="modal-body">
+                <div class="price-section">
+                    <div class="current-price" id="modal-current-price">$150.00</div>
+                    <div class="price-change" id="modal-price-change">+$2.50 (+1.69%)</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="stock-chart"></canvas>
+                </div>
+                <div class="stock-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Open</span>
+                        <span class="stat-value" id="modal-open">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">High</span>
+                        <span class="stat-value" id="modal-high">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Low</span>
+                        <span class="stat-value" id="modal-low">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Volume</span>
+                        <span class="stat-value" id="modal-volume">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div class="win-modal" id="win-modal">
+        <div class="win-modal-content">
+            <div class="win-icon">🏆</div>
+            <h2 class="win-title">YOU WIN!</h2>
+            <p class="win-message">Congratulations! You've reached $1,000,000 in portfolio value. You are a master
+                trader!</p>
+            <div class="win-actions">
+                <button class="btn-win-primary" id="keep-playing-btn">Keep Playing</button>
+                <button class="btn-win-secondary" id="exit-game-btn">Exit Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="emotion-detection.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
