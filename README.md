@@ -1,4 +1,4 @@
-# JethroStockMarketGame.github.io
+# StockMarketGame.github.io
 Fun stock market game that uses your emotions to buy and sell stocks! 
 📊 Market Events (Checked every 1 second)
 Event	Probability (per second)	What Happens:
